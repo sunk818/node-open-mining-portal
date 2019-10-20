@@ -1,5 +1,5 @@
 {
     "name": "ASICcoin",
     "symbol": "ASC",
-    "algorithm": "sha256"
+    "algorithm": "sha256" 
 }
