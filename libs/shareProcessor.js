@@ -61,7 +61,7 @@ module.exports = function(logger, poolConfig){
             logger.error(logSystem, logComponent, logSubCat, 'Could not detect redis version - but be super old or broken');
         }
         else if (version < 2.6){
-            logger.error(logSystem, logComponent, logSubCat, "You're using redis version " + versionString + " the minimum required version is 2.6. Follow the damn usage instructions...");
+            logger.error(logSystem, logComponent, logSubCat, "You're using redis version " + versionString + " the minimum required version is 2.6. Follow the usage instructions...");
         }
     });
 
