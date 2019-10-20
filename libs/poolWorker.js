@@ -13,7 +13,7 @@ module.exports = function(logger){
     var portalConfig = JSON.parse(process.env.portalConfig);
 
     var forkId = process.env.forkId;
-    
+
     var pools = {};
 
     var proxySwitch = {};
@@ -69,10 +69,10 @@ module.exports = function(logger){
 
                 if (newPool) {
                     oldPool.relinquishMiners(
-                        function (miner, cback) { 
+                        function (miner, cback) {
                             // relinquish miners that are attached to one of the "Auto-switch" ports and leave the others there.
                             cback(proxyPorts.indexOf(miner.client.socket.localPort.toString()) !== -1)
-                        }, 
+                        },
                         function (clients) {
                             newPool.attachMiners(clients);
                         }
@@ -176,15 +176,16 @@ module.exports = function(logger){
 
 
         var pool = Stratum.createPool(poolOptions, authorizeFN, logger);
-        pool.on('share', function(isValidShare, isValidBlock, data){
+        pool.on('share', function(isValidShare, isValidBlock, data)
+        {
 
             var shareData = JSON.stringify(data);
 
-            if (data.blockHash && !isValidBlock)
+            if (!isValidBlock)
                 logger.debug(logSystem, logComponent, logSubCat, 'We thought a block was found but it was rejected by the daemon, share data: ' + shareData);
 
             else if (isValidBlock)
-                logger.debug(logSystem, logComponent, logSubCat, 'Block found: ' + data.blockHash + ' by ' + data.worker);
+                logger.debug(logSystem, logComponent, logSubCat, '***** Block found: ****** ' + data.blockHash + ' by ' + data.worker);
 
             if (isValidShare) {
                 if(data.shareDiff > 1000000000)
@@ -273,7 +274,7 @@ module.exports = function(logger){
                             + switchName + ' from '
                             + socket.remoteAddress + ' on '
                             + port + ' routing to ' + currentPool);
-                        
+
                         if (pools[currentPool])
                             pools[currentPool].getStratumServer().handleNewClient(socket);
                         else
@@ -304,7 +305,7 @@ module.exports = function(logger){
     };
 
     //
-    // Called when stratum pool emits its 'started' event to copy the initial diff and vardiff 
+    // Called when stratum pool emits its 'started' event to copy the initial diff and vardiff
     // configuation for any proxy switching ports configured into the stratum pool object.
     //
     this.setDifficultyForProxyPort = function(pool, coin, algo) {
@@ -317,7 +318,7 @@ module.exports = function(logger){
             var switchAlgo = portalConfig.switching[switchName].algorithm;
             if (pool.options.coin.algorithm !== switchAlgo) return;
 
-            // we know the switch configuration matches the pool's algo, so setup the diff and 
+            // we know the switch configuration matches the pool's algo, so setup the diff and
             // vardiff for each of the switch's ports
             for (var port in portalConfig.switching[switchName].ports) {
 
@@ -325,7 +326,7 @@ module.exports = function(logger){
                     pool.setVarDiff(port, portalConfig.switching[switchName].ports[port].varDiff);
 
                 if (portalConfig.switching[switchName].ports[port].diff){
-                    if (!pool.options.ports.hasOwnProperty(port)) 
+                    if (!pool.options.ports.hasOwnProperty(port))
                         pool.options.ports[port] = {};
                     pool.options.ports[port].diff = portalConfig.switching[switchName].ports[port].diff;
                 }
