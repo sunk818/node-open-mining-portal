@@ -122,7 +122,7 @@
         display: flex;
         flex-direction: column;
         color: white;
-        width: 750px;
+        width: 950px;
         min-height: 400px;
         top: 50px;
         left: 50%;
@@ -227,22 +227,22 @@
     </div>
 
     <div id="main">
-        <a href="#" class="miningOption" id="nompAppDownload">
+        <a href="https://wiki.biblepay.org/nomp_mining" class="miningOption" id="na1">
             <div class="miningOptionNum">1.</div>
             <div class="miningOptionInstructions">
-                <div>Download NOMP App</div>
-                <div>Our preconfigured app makes mining that easy</div>
+                <div>Choose Easy or Hard Setup</div>
+                <div> &nbsp;</div>
             </div>
         </a>
         <div id="orHolder">
             <div id="orLine"></div>
-            <div id="orText">or</div>
+            <div id="orText"> Then </div>
         </div>
         <a href="#" class="miningOption" id="coinGlowTrigger">
             <div class="miningOptionNum">2.</div>
             <div class="miningOptionInstructions">
                 <div>Select a coin for connection details</div>
-                <div>Configurations for each coin are available for advanced miners</div>
+                <div>Configurations for each coin are available</div>
             </div>
         </a>
     </div>
@@ -252,6 +252,7 @@
 
 <div id="coinInfo" class="hidden">
     <a href="#" id="coinInfoClose">×</a>
+
     <div><span class="coinInfoName"></span> Configuration:</div>
     <div id="coinInfoRows">
         <div id="coinInfoRowKeys">
@@ -259,7 +260,7 @@
             <div>Password:</div>
         </div>
         <div id="coinInfoRowValues">
-            <div id="coinInfoUsername"></div>
+            <div id="coinInfoUsername">Your BBP Wallet Address</div>
             <div>anything</div>
         </div>
     </div>
@@ -276,6 +277,8 @@
             htmlKeys += '<div class="coinInfoData">URL <span class="coinInfoSubtle">(difficulty ' + info.ports[port].diff + ')</span>:</div>';
             htmlValues += '<div class="coinInfoData">stratum+tcp://' + info.host + ':' + port + '</div>';
         }
+		htmlKeys += "<div class='coinInfoData'>Example:</div>";
+		htmlValues += "<div class='coinInfoData'><small>./bbpminer -ostratum+tcp://nomp.biblepay.org:3008 --user=your_bbp_address</div>";
 
         if (info.coin)
             $('#coinInfoUsername').text('your ' + info.coin.name + ' wallet address');
@@ -312,7 +315,9 @@
 
     $('#nompAppDownload').click(function(event){
         event.preventDefault();
-        alert('NOMP App development still in progress...');
+        //        alert('NOMP App development still in progress...');
+        window.location('https://wiki.biblepay.org/nomp_mining');
+
         return false;
     });
 </script>
