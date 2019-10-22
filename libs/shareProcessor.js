@@ -71,15 +71,15 @@ module.exports = function (logger, poolConfig) {
         var redisCommands = [];
 
         if (isValidShare) {
-            var difficultylevel = shareData.hasabn == 1 ? shareData.difficulty * 2 : shareData.difficulty;
-
-            redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, difficultylevel]);
-
             if (shareData.hasabn == 1) {
                 // Then increment the ABN solved counter for the miner:
-                redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, difficultylevel]);
+                redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, shareData.difficulty * 2]);
                 // Then increment the validabnShares stat for the entire coin:
-                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', difficultylevel]);
+                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', shareData.difficulty * 2]);
+            }
+            else {
+                redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
+
             }
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
         }
