@@ -71,16 +71,16 @@ module.exports = function (logger, poolConfig) {
         var redisCommands = [];
 
         if (isValidShare) {
-            redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
-            if (shareData.hasabn == 1) {
-                // First double the share reward to 2:
-                redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
-                // Then increment the ABN solved counter for the miner:
-                redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, shareData.difficulty]);
-                // Then increment the validabnShares stat for the entire coin:
-                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', 1]);
-            }
+            var difficultylevel = shareData.hasabn == 1 ? shareData.difficulty * 2 : shareData.difficulty;
 
+            redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, difficultylevel]);
+
+            if (shareData.hasabn == 1) {
+                // Then increment the ABN solved counter for the miner:
+                redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, difficultylevel]);
+                // Then increment the validabnShares stat for the entire coin:
+                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', difficultylevel]);
+            }
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
         }
         else {
