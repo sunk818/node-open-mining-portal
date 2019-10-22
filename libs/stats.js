@@ -209,11 +209,11 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                                 invalidshares: -workerShares,
                                 hashrateString: null
                             };
-                        }
+                    }
 
-                        if (hasabn > 0) {
-                            coinStats.workers[worker].abnshares += 1;
-                        }
+                    if (hasabn > 0) {
+                        coinStats.workers[worker].abnshares += workerShares;
+                    }
 
                 });
 
