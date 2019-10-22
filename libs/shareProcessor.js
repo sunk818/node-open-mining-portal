@@ -72,10 +72,12 @@ module.exports = function (logger, poolConfig) {
 
         if (isValidShare) {
             if (shareData.hasabn == 1) {
+                redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty * 2]);
+
                 // Then increment the ABN solved counter for the miner:
                 redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, shareData.difficulty * 2]);
                 // Then increment the validabnShares stat for the entire coin:
-                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', shareData.difficulty * 2]);
+                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', 1]);
             }
             else {
                 redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
