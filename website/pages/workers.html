@@ -45,6 +45,7 @@
                 <tr>
                     <th>Address</th>
                     <th>Shares</th>
+                    <th>ABN Shares</th>
                     <th>Invalid shares</th>
                     <th>Efficiency</th>
                     <th>Hashrate</th>
@@ -55,6 +56,7 @@
                     <tr class="pure-table-odd">
                         <td>{{=worker}}</td>
                         <td>{{=Math.floor(workerstat.shares)}}</td>
+                        <td>{{=Math.floor(workerstat.abnshares)}}</td>
                         <td>{{=Math.floor(workerstat.invalidshares)}}</td>
                         <td>{{? workerstat.shares > 0}} {{=Math.floor(10000 * workerstat.shares / (workerstat.shares + workerstat.invalidshares)) / 100}}% {{??}} 0% {{?}}</td>
                         <td>{{=workerstat.hashrateString}}</td>

@@ -8,7 +8,8 @@ function workerapi(listen) {
 	var counters = {
 		validShares   : 0,
 		validBlocks   : 0,
-		invalidShares : 0
+		invalidShares : 0,
+        validabnShares : 0
 	};
 
 	var lastEvents = {
@@ -27,25 +28,28 @@ function workerapi(listen) {
 
 
 	this.start = function (poolObj) {
-		this.poolObj = poolObj;
-		this.poolObj.once('started', function () {
-			app.listen(listen, function (lol) {
-				console.log("LISTENING ");
-			});
-		})
-		.on('share', function(isValidShare, isValidBlock, shareData) {
-			var now = Date.now();
-			if (isValidShare) {
-				counters.validShares ++;
-				lastEvents.lastValidShare = now;
-				if (isValidBlock) {
-					counters.validBlocks ++;
-					lastEvents.lastValidBlock = now;
-				}
-			} else {
-				counters.invalidShares ++;
-				lastEvents.lastInvalidShare = now;
-			}
+	    this.poolObj = poolObj;
+	    this.poolObj.once('started', function () {
+	        app.listen(listen, function (lol) {
+	            console.log("LISTENING ");
+	        });
+	    })
+		.on('share', function (isValidShare, isValidBlock, shareData) {
+		    var now = Date.now();
+		    if (isValidShare) {
+		        counters.validShares++;
+		        if (shareData.hasabn == 1) {
+		            counters.validabnShares++;
+		        }
+		        lastEvents.lastValidShare = now;
+		        if (isValidBlock) {
+		            counters.validBlocks++;
+		            lastEvents.lastValidBlock = now;
+		        }
+		    } else {
+		        counters.invalidShares++;
+		        lastEvents.lastInvalidShare = now;
+		    }
 		});
 	}
 }

@@ -15,7 +15,7 @@ value: a hash with..
 
 
 
-module.exports = function(logger, poolConfig){
+module.exports = function (logger, poolConfig) {
 
     var redisConfig = poolConfig.redis;
     var coin = poolConfig.coin.name;
@@ -28,72 +28,81 @@ module.exports = function(logger, poolConfig){
 
     var connection = redis.createClient(redisConfig.port, redisConfig.host);
 
-    connection.on('ready', function(){
+    connection.on('ready', function () {
         logger.debug(logSystem, logComponent, logSubCat, 'Share processing setup with redis (' + redisConfig.host +
-            ':' + redisConfig.port  + ')');
+            ':' + redisConfig.port + ')');
     });
-    connection.on('error', function(err){
+    connection.on('error', function (err) {
         logger.error(logSystem, logComponent, logSubCat, 'Redis client had an error: ' + JSON.stringify(err))
     });
-    connection.on('end', function(){
+    connection.on('end', function () {
         logger.error(logSystem, logComponent, logSubCat, 'Connection to redis database has been ended');
     });
 
-    connection.info(function(error, response){
-        if (error){
+    connection.info(function (error, response) {
+        if (error) {
             logger.error(logSystem, logComponent, logSubCat, 'Redis version check failed');
             return;
         }
         var parts = response.split('\r\n');
         var version;
         var versionString;
-        for (var i = 0; i < parts.length; i++){
-            if (parts[i].indexOf(':') !== -1){
+        for (var i = 0; i < parts.length; i++) {
+            if (parts[i].indexOf(':') !== -1) {
                 var valParts = parts[i].split(':');
-                if (valParts[0] === 'redis_version'){
+                if (valParts[0] === 'redis_version') {
                     versionString = valParts[1];
                     version = parseFloat(versionString);
                     break;
                 }
             }
         }
-        if (!version){
+        if (!version) {
             logger.error(logSystem, logComponent, logSubCat, 'Could not detect redis version - but be super old or broken');
         }
-        else if (version < 2.6){
+        else if (version < 2.6) {
             logger.error(logSystem, logComponent, logSubCat, "You're using redis version " + versionString + " the minimum required version is 2.6. Follow the usage instructions...");
         }
     });
 
 
-    this.handleShare = function(isValidShare, isValidBlock, shareData){
+    this.handleShare = function (isValidShare, isValidBlock, shareData) {
 
         var redisCommands = [];
 
-        if (isValidShare){
+        if (isValidShare) {
             redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
+            if (shareData.hasabn == 1) {
+                // First double the share reward to 2:
+                redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
+                // Then increment the ABN solved counter for the miner:
+                redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, shareData.difficulty]);
+                // Then increment the validabnShares stat for the entire coin:
+                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', 1]);
+            }
+
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
         }
-        else{
+        else {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
         }
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
-           doesn't overwrite an existing entry, and timestamp as score lets us query shares from last X minutes to
-           generate hashrate for each worker and pool. */
+        doesn't overwrite an existing entry, and timestamp as score lets us query shares from last X minutes to
+        generate hashrate for each worker and pool. */
         var dateNow = Date.now();
-        var hashrateData = [ isValidShare ? shareData.difficulty : -shareData.difficulty, shareData.worker, dateNow];
+        var hashrateData = [isValidShare ? shareData.difficulty : -shareData.difficulty, shareData.worker, dateNow, shareData.hasabn];
         redisCommands.push(['zadd', coin + ':hashrate', dateNow / 1000 | 0, hashrateData.join(':')]);
 
-        if (isValidBlock){
+        if (isValidBlock) {
             redisCommands.push(['rename', coin + ':shares:roundCurrent', coin + ':shares:round' + shareData.height]);
             redisCommands.push(['sadd', coin + ':blocksPending', [shareData.blockHash, shareData.txHash, shareData.height].join(':')]);
             redisCommands.push(['hincrby', coin + ':stats', 'validBlocks', 1]);
         }
-        else if (shareData.blockHash){
+        else if (shareData.blockHash) {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidBlocks', 1]);
         }
 
-        connection.multi(redisCommands).exec(function(err, replies){
+        connection.multi(redisCommands).exec(function (err, replies) {
             if (err)
                 logger.error(logSystem, logComponent, logSubCat, 'Error with share processor multi ' + JSON.stringify(err));
         });
