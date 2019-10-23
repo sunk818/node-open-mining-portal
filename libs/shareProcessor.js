@@ -70,22 +70,22 @@ module.exports = function (logger, poolConfig) {
 
         var redisCommands = [];
 
-        if (isValidShare) {
-            if (shareData.hasabn == 1) {
-                redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty * 2]);
+        if (isValidShare) 
+        {
+               //if (shareData.hasabn == 1) {
+               redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
+               redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
 
                 // Then increment the ABN solved counter for the miner:
-                redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, shareData.difficulty * 2]);
+                // redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, shareData.difficulty]);
                 // Then increment the validabnShares stat for the entire coin:
-                redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', 1]);
-            }
-            else {
-                redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
-
-            }
-            redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
+                // redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', 1]);
+                //         else {
+                //  redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
+                 //           }
         }
-        else {
+        else 
+        {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
         }
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
