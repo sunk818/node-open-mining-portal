@@ -20,7 +20,6 @@ module.exports = function (logger, poolConfig) {
     var redisConfig = poolConfig.redis;
     var coin = poolConfig.coin.name;
 
-
     var forkId = process.env.forkId;
     var logSystem = 'Pool';
     var logComponent = coin;
@@ -69,23 +68,11 @@ module.exports = function (logger, poolConfig) {
     this.handleShare = function (isValidShare, isValidBlock, shareData) {
 
         var redisCommands = [];
-
-        if (isValidShare) 
-        {
-               //if (shareData.hasabn == 1) {
-               redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
-               redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
-
-                // Then increment the ABN solved counter for the miner:
-                // redisCommands.push(['hincrbyfloat', coin + ':abnshares:roundCurrent', shareData.worker, shareData.difficulty]);
-                // Then increment the validabnShares stat for the entire coin:
-                // redisCommands.push(['hincrby', coin + ':stats', 'validabnShares', 1]);
-                //         else {
-                //  redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
-                 //           }
+        if (isValidShare) {
+            redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
+            redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
         }
-        else 
-        {
+        else {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
         }
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
@@ -94,7 +81,7 @@ module.exports = function (logger, poolConfig) {
         var dateNow = Date.now();
         var hashrateData = [isValidShare ? shareData.difficulty : -shareData.difficulty, shareData.worker, dateNow, shareData.hasabn];
         redisCommands.push(['zadd', coin + ':hashrate', dateNow / 1000 | 0, hashrateData.join(':')]);
-
+      
         if (isValidBlock) {
             redisCommands.push(['rename', coin + ':shares:roundCurrent', coin + ':shares:round' + shareData.height]);
             redisCommands.push(['sadd', coin + ':blocksPending', [shareData.blockHash, shareData.txHash, shareData.height].join(':')]);
@@ -103,7 +90,7 @@ module.exports = function (logger, poolConfig) {
         else if (shareData.blockHash) {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidBlocks', 1]);
         }
-
+      
         connection.multi(redisCommands).exec(function (err, replies) {
             if (err)
                 logger.error(logSystem, logComponent, logSubCat, 'Error with share processor multi ' + JSON.stringify(err));

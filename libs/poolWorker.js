@@ -181,7 +181,7 @@ module.exports = function(logger){
 
             var shareData = JSON.stringify(data);
 
-            if (!isValidBlock && false)
+            if (false)
                 logger.debug(logSystem, logComponent, logSubCat, 'We thought a block was found but it was rejected by the daemon, share data: ' + shareData);
 
             else if (isValidBlock)
