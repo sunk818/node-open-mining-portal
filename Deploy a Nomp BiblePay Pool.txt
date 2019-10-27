@@ -1,0 +1,117 @@
+****************************************  Deploying a Nomp pool for BiblePay ***************************************************************
+
+1.  I have only deployed the pool on ubuntu 18 and ubuntu 16, so please try to use Ubuntu 18 if possible. 
+
+2.  I had a horrible time running the pool without swap space.  Ironically, this was on a 4 core 8gig machine.  
+For performance, I recommend a dual core machine, but I have also read the single core vultr machines will also work with nomp.
+But please do add swap space, 4 gig is recommended, but 1 gig should work.  
+
+3.  Spin up a VM.  Compile Biblepay-Evolution on the machine and test that biblepay daemon is syncing.  If you use QT you may find this whole experience is a little easier (because you can see the transactions in the wallet).  Later you can move to biblepayd.
+
+4.  Install Swap Space:
+
+/* Optional:  How to increase swap space on a machine with only 1gb of ram:  NOTE! If you have a lot of hard drive space, increase the "count=1048576 to count=4500000 and the sudo fallocate -l 4G" for example.
+free #check if swap is 0 then do this:
+sudo fallocate -l 1G /swapfile
+sudo dd if=/dev/zero of=/swapfile bs=1024 count=1048576
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo nano /etc/fstab
+#add this line:
+/swapfile swap swap defaults 0 0
+#save the file
+sudo swapon --show
+free #check - should be 1G
+*/
+
+5.1  apt-get update
+5.2  apt-get install redis
+5.3  apt-get install npm
+
+6.  Modify the biblepay.conf with your daemon exposure info:
+daemon=1
+rpcuser=your_admin_name
+rpcpassword=your_admin_password
+rpcport=your_port
+
+7. Install NOMP:
+
+Note: The admin commands below assume you are su'ed as root: 
+cd /
+mkdir pool
+cd pool
+git clone https://github.com/biblepay/node-open-mining-portal.git nomp
+cd nomp
+npm update
+
+7.2 Install Stratum BBP/POBH:
+cd /pool
+git clone https://github.com/biblepay/node-stratum-pool.git
+cd node-stratum-pool
+chmod 777 deploypool.sh
+./deploypool.sh
+cd /pool/nomp
+
+8.  Coin Config file: The file /nomp/coins/biblepay.json was already modified by BiblePay IT so you do not need to do anything here.
+
+9.  Modify : /website/index.html:
+Change the pool percentage to the applicable pool percentage you charge in the config file (seen below): search for ".7%".
+
+10. Modify nomp/pool_configs/biblepay.json:
+First, locate the line: "pool_receive_address_y*".  Load the BBP pool wallet, and navigate to the address book, and copy the pool receive address to the clipboard.  Edit the name to be "NOMP" or "Pool".  Paste the address into this key.
+Also, edit the next instance of "pool_receive_address_y*" with the same value.
+Modify the .6 to be the % you charge for your pool.
+Optionally, change the .1% given to Nomps key (Note: It is OK to leave the 2285* address in the file, as this is a public-key-script address for NOMP).
+NOTE: Be very careful NOT to remove keys OR add any keys to this file until AFTER you get your pool running AND you backup this file.  One mistake to the file, and the pool will crash with cryptic messages.  
+Please triple verify any key value you change in this file as you type each key.  If you remove a quote for example, the pool will crash.
+Change the 'rpcuser' and 'rpcpassword' values in the file (all 3*) to your RPC username and RPC password set in step 6.
+Save the file.
+
+12.  Adjust the nomp/config.json values:
+The blockRefreshInterval is set to 37000, this is pretty good to poll the RPC to find new blocks (as, NOMP finds them anyway when shares are submitted).
+Read more about stratum to understand the jobRebroadcastTimeout and connectionTimeout settings.  No need to change them.
+Change the pool.biblepay.org "stratumHost" to match your FQDN (domain name) for your port 80 website.  This is the address people will navigate to see your NOMP presence.
+Change the adminpassword to your admin password.
+We have not tested multi-pool mining or profit-switching therefore the defaults still exist.
+
+
+13. Read more about nomp config values here:
+https://github.com/zone117x/node-open-mining-portal
+
+
+14.  How to start the NOMP pool:  (Note, if you want to restart the pool after a reboot, you will need to daemonize the biblepayd daemon - or start it in your startup script, then add the '/pool/nomp/node init.js' to your startup script).
+cd /pool/nomp
+node init.js
+
+Verify there are no red errors.  After this you should be able to launch a browser and reach NOMP.
+Feel free to ask BiblePay IT for a free subdomain DNS record (IE:  coolpool.biblepay.org).
+
+Note: Payments will be sent out approx. 30 minutes after blocks mature.
+
+
+
+******************** Upgrading the Pool *******************************
+
+To upgrade the biblepay pool, after you see the github node-stratum-pool or node-mining-portal has a new release:
+
+cd /pool/nomp
+git pull origin master
+cd ..
+cd node-stratum-pool
+git pull origin master
+./deploypool.sh
+cd ..
+cd nomp
+node init.js <- This restarts the pool
+
+
+***********************************************************************
+
+
+Good Luck, and God bless you all, and remember, Jesus is the Lord and Savior and every man must pass through the narrow gate, as broad is the way and path to destruction that more than half of the world is taking.
+
+
+
+
+
