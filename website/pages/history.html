@@ -55,7 +55,7 @@
                    {{var workerstat = it.stats.pools[pool].history[i];}}
                     <tr class="pure-table-odd">
                         <td>{{=workerstat.address}}</td>
-                        <td>{{=Math.floor(workerstat.percent)}}</td>
+                        <td>{{=Math.floor(workerstat.percent * 100)}}</td>
                         <td>{{=Math.floor(workerstat.height)}}</td>
                         <td><small>{{=workerstat.blockHash}}</small></td>
                     </tr>
