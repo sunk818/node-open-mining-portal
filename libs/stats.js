@@ -145,7 +145,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                     var i1 = 0;
                     for (var w in results[0]) {
                         i1++;
-                        workers1[w] = { balance: coinsToSatoshies(parseFloat(results[0][w])) };
+                        workers1[w] = { balance: parseFloat(results[0][w]) };
                     }
 
                     var rounds = results[1].map(function (r) {
