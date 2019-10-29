@@ -18,9 +18,13 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     var redisClients = [];
     var redisStats;
 
+    var myHistory = {};
+    var z1 = 0;
+
+
     this.statHistory = [];
     this.statPoolHistory = [];
-    
+
     this.stats = {};
     this.statsString = '';
 
@@ -95,13 +99,12 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     }
 
 
-
+    
 
     this.getGlobalStats = function (callback) {
 
         var statGatherTime = Date.now() / 1000 | 0;
-        var myHistory = {};
-
+    
         var allCoinStats = {};
 
         async.each(redisClients, function (client, callback) {
@@ -125,7 +128,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                     var clonedTemplates = t.slice(0);
                     clonedTemplates[1] = coin + clonedTemplates[1];
                     redisCommands.push(clonedTemplates);
-                    console.log('coin %s', coin);
+                    // console.log('coin %s', coin);
                 });
             });
 
@@ -138,6 +141,8 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                 ]).exec(function (error, results) {
 
                     if (error) {
+                        console.log('error %s', JSON.stringify(error));
+
                         logger.error(logSystem, logComponent, 'Could not get blocks from redis ' + JSON.stringify(error));
                     }
 
@@ -145,14 +150,14 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                     var i1 = 0;
                     for (var w in results[0]) {
                         i1++;
-                        workers1[w] = { balance: parseFloat(results[0][w]) };
+                        // workers1[w] = { balance: parseFloat(results[0][w]) };
                     }
 
                     var rounds = results[1].map(function (r) {
                         var details = r.split(':');
                         if (false)
                             console.log('details blockhash,txhash,height %s', r);
-                        
+
                         return {
                             blockHash: details[0],
                             txHash: details[1],
@@ -167,9 +172,9 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                         return ['hgetall', 'biblepay:shares:round' + r.height]
                     });
 
-                    var z1 = 0;
                     client.client.multi(shareLookups).exec(function (error, allWorkerShares) {
                         if (error) {
+                            console.log('error %s', error);
                             callback('Check finished - redis error with multi get rounds share');
                             return;
                         }
@@ -179,6 +184,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                             var workerShares = allWorkerShares[i];
 
                             if (!workerShares) {
+                                console.log('error 706');
                                 logger.error(logSystem, logComponent, 'No worker shares for round: ' + round.height + ' blockHash: ' + round.blockHash);
                                 return;
                             }
@@ -205,17 +211,19 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                                         myHistory[z1] = {
                                             address: worker.address,
                                             percent: percent,
-                                            blockHash:round.blockHash,
-                                            txHash:round.txHash,
-                                            height:round.height
+                                            blockHash: round.blockHash,
+                                            txHash: round.txHash,
+                                            height: round.height
                                         };
                                     }
                                     break;
                             }
                         });
                     });
-                // End of Get Round Details
-            })
+                    // End of Get Round Details
+                })
+            console.log('Historical count %d %d', z1, myHistory.length);
+
             // End of BiblePay History gathering for Pending Payments and share percentages
 
             client.client.multi(redisCommands).exec(function (err, replies) {
@@ -252,6 +260,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
             });
         }, function (err) {
             if (err) {
+                console.log('error getting the stats %s', err);
                 logger.error(logSystem, 'Global', 'error getting all stats' + JSON.stringify(err));
                 callback();
                 return;
@@ -273,11 +282,6 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                 coinStats.workers = {};
                 coinStats.shares = 0;
                 coinStats.abnshares = 0;
-
-
-
-
-
 
 
                 coinStats.hashrates.forEach(function (ins) {
