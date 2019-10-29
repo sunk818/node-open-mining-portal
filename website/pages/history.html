@@ -1,0 +1,67 @@
+<style>
+
+    #topCharts {
+        padding: 18px;
+    }
+
+    #topCharts > div > div > svg {
+        display: block;
+        height: 280px;
+    }
+
+    .chartWrapper {
+        border: solid 1px #c7c7c7;
+        border-radius: 5px;
+        padding: 5px;
+        margin-bottom: 18px;
+    }
+
+    .chartLabel {
+        font-size: 1.2em;
+        text-align: center;
+        padding: 4px;
+    }
+
+    .chartHolder {
+
+    }
+
+    table {
+        width: 100%;
+    }
+
+</style>
+
+
+<div id="topCharts">
+
+{{ for(var pool in it.stats.pools) { }}
+
+    <div class="chartWrapper">
+        <div class="chartLabel">{{=it.stats.pools[pool].name}}</div>
+        <div class="chartHolder">
+            <table class="pure-table">
+                <thead>
+                <tr>
+                    <th>Address</th>
+                    <th>Percent</th>
+                    <th>Height</th>
+                    <th>Blockhash</th>
+                </tr>
+                </thead>
+
+                
+                {{ for(var i in it.stats.pools[pool].history) { }}
+                   {{var workerstat = it.stats.pools[pool].history[i];}}
+                    <tr class="pure-table-odd">
+                        <td>{{=workerstat.address}}</td>
+                        <td>{{=Math.floor(workerstat.percent)}}</td>
+                        <td>{{=Math.floor(workerstat.height)}}</td>
+                        <td><small>{{=workerstat.blockHash}}</small></td>
+                    </tr>
+                {{ } }}
+           
+    </table>
+        </div>
+    </div>
+{{ } }}

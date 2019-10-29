@@ -20,7 +20,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
 
     this.statHistory = [];
     this.statPoolHistory = [];
-
+    
     this.stats = {};
     this.statsString = '';
 
@@ -100,6 +100,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     this.getGlobalStats = function (callback) {
 
         var statGatherTime = Date.now() / 1000 | 0;
+        var myHistory = {};
 
         var allCoinStats = {};
 
@@ -124,9 +125,98 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                     var clonedTemplates = t.slice(0);
                     clonedTemplates[1] = coin + clonedTemplates[1];
                     redisCommands.push(clonedTemplates);
+                    console.log('coin %s', coin);
                 });
             });
 
+
+            // R Andrews - History Page - Gather the Share percentages per Pending payment owed
+
+            client.client.multi([
+                    ['hgetall', 'biblepay:balances'],
+                    ['smembers', 'biblepay:blocksPending']
+                ]).exec(function (error, results) {
+
+                    if (error) {
+                        logger.error(logSystem, logComponent, 'Could not get blocks from redis ' + JSON.stringify(error));
+                    }
+
+                    var workers1 = {};
+                    var i1 = 0;
+                    for (var w in results[0]) {
+                        i1++;
+                        workers1[w] = { balance: coinsToSatoshies(parseFloat(results[0][w])) };
+                    }
+
+                    var rounds = results[1].map(function (r) {
+                        var details = r.split(':');
+                        if (false)
+                            console.log('details blockhash,txhash,height %s', r);
+                        
+                        return {
+                            blockHash: details[0],
+                            txHash: details[1],
+                            height: details[2],
+                            serialized: r
+                        };
+
+                    });
+                    //  Get Round Details
+
+                    var shareLookups = rounds.map(function (r) {
+                        return ['hgetall', 'biblepay:shares:round' + r.height]
+                    });
+
+                    var z1 = 0;
+                    client.client.multi(shareLookups).exec(function (error, allWorkerShares) {
+                        if (error) {
+                            callback('Check finished - redis error with multi get rounds share');
+                            return;
+                        }
+
+                        // In rounds:
+                        rounds.forEach(function (round, i) {
+                            var workerShares = allWorkerShares[i];
+
+                            if (!workerShares) {
+                                logger.error(logSystem, logComponent, 'No worker shares for round: ' + round.height + ' blockHash: ' + round.blockHash);
+                                return;
+                            }
+                            switch (round.category) {
+                                case 'kicked':
+                                case 'orphan':
+                                    round.workerShares = workerShares;
+                                    break;
+                                default:
+                                    magnitude = 1;
+                                    var reward = parseInt(round.reward * magnitude);
+                                    var totalShares = Object.keys(workerShares).reduce(function (p, c) {
+                                        return p + parseFloat(workerShares[c])
+                                    }, 0);
+                                    for (var workerAddress in workerShares) {
+                                        var percent = parseFloat(workerShares[workerAddress]) / totalShares;
+                                        var workerRewardTotal = Math.floor(reward * percent);
+                                        var worker = {};
+                                        worker.reward = (worker.reward || 0) + workerRewardTotal;
+                                        worker.address = workerAddress;
+                                        if (false)
+                                            console.log('my worker perc %d reward  %s address %s', percent, worker.reward, worker.address);
+                                        z1++;
+                                        myHistory[z1] = {
+                                            address: worker.address,
+                                            percent: percent,
+                                            blockHash:round.blockHash,
+                                            txHash:round.txHash,
+                                            height:round.height
+                                        };
+                                    }
+                                    break;
+                            }
+                        });
+                    });
+                // End of Get Round Details
+            })
+            // End of BiblePay History gathering for Pending Payments and share percentages
 
             client.client.multi(redisCommands).exec(function (err, replies) {
                 if (err) {
@@ -141,6 +231,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                             symbol: poolConfigs[coinName].coin.symbol.toUpperCase(),
                             algorithm: poolConfigs[coinName].coin.algorithm,
                             hashrates: replies[i + 1],
+                            history: myHistory,
                             poolStats: {
                                 validShares: replies[i + 2] ? (replies[i + 2].validShares || 0) : 0,
                                 validabnShares: replies[i + 2] ? (replies[i + 2].validabnShares || 0) : 0,
@@ -175,18 +266,26 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                 algos: {},
                 pools: allCoinStats
             };
+            // 10-29-2019  - BiblePay
 
             Object.keys(allCoinStats).forEach(function (coin) {
                 var coinStats = allCoinStats[coin];
                 coinStats.workers = {};
                 coinStats.shares = 0;
                 coinStats.abnshares = 0;
+
+
+
+
+
+
+
                 coinStats.hashrates.forEach(function (ins) {
                     var parts = ins.split(':');
                     var workerShares = parseFloat(parts[0]);
                     var worker = parts[1];
                     var hasabn = parseFloat(parts[3]);
-                 
+
                     if (workerShares > 0) {
                         coinStats.shares += workerShares;
                         if (worker in coinStats.workers)
