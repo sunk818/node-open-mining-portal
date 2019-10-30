@@ -18,7 +18,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     var redisClients = [];
     var redisStats;
 
-    var myHistory = {};
+    var myHistory = [];
     var z1 = 0;
 
 
@@ -99,12 +99,14 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     }
 
 
-    
+
 
     this.getGlobalStats = function (callback) {
 
+        myHistory = [];
+        z1 = 0;
         var statGatherTime = Date.now() / 1000 | 0;
-    
+
         var allCoinStats = {};
 
         async.each(redisClients, function (client, callback) {
@@ -134,7 +136,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
 
 
             // R Andrews - History Page - Gather the Share percentages per Pending payment owed
-            myHistory = {};
+
 
             client.client.multi([
                     ['hgetall', 'biblepay:balances'],
@@ -149,10 +151,10 @@ module.exports = function (logger, portalConfig, poolConfigs) {
 
                     var workers1 = {};
                     var i1 = 0;
-                    for (var w in results[0]) {
-                        i1++;
-                        // workers1[w] = { balance: parseFloat(results[0][w]) };
-                    }
+                    //for (var w in results[0]) {
+                    //    i1++;
+                    // workers1[w] = { balance: parseFloat(results[0][w]) };
+                    //}
 
                     var rounds = results[1].map(function (r) {
                         var details = r.split(':');
