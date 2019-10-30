@@ -19,8 +19,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     var redisStats;
 
     var myHistory = [];
-    var z1 = 0;
-
+   
 
     this.statHistory = [];
     this.statPoolHistory = [];
@@ -99,15 +98,12 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     }
 
 
-
-
     this.getGlobalStats = function (callback) {
 
-        myHistory = [];
-        z1 = 0;
         var statGatherTime = Date.now() / 1000 | 0;
 
         var allCoinStats = {};
+        var z1 = 0;
 
         async.each(redisClients, function (client, callback) {
             var windowTime = (((Date.now() / 1000) - portalConfig.website.stats.hashrateWindow) | 0).toString();
@@ -151,10 +147,13 @@ module.exports = function (logger, portalConfig, poolConfigs) {
 
                     var workers1 = {};
                     var i1 = 0;
-                    //for (var w in results[0]) {
-                    //    i1++;
-                    // workers1[w] = { balance: parseFloat(results[0][w]) };
-                    //}
+                    // Reserved for potentially exposing the amount paid:
+                    /*
+                    for (var w in results[0]) {
+                    i1++;
+                    workers1[w] = { balance: parseFloat(results[0][w]) };
+                    }
+                    */
 
                     var rounds = results[1].map(function (r) {
                         var details = r.split(':');
@@ -208,8 +207,6 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                                         var worker = {};
                                         worker.reward = (worker.reward || 0) + workerRewardTotal;
                                         worker.address = workerAddress;
-                                        if (false)
-                                            console.log('my worker perc %d reward  %s address %s', percent, worker.reward, worker.address);
                                         z1++;
                                         myHistory[z1] = {
                                             address: worker.address,
@@ -218,6 +215,9 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                                             txHash: round.txHash,
                                             height: round.height
                                         };
+                                        if (false)
+                                            console.log('z1 %d, my worker perc %d reward  %s address %s', z1, percent, worker.reward, worker.address);
+
                                     }
                                     break;
                             }
@@ -225,7 +225,6 @@ module.exports = function (logger, portalConfig, poolConfigs) {
                     });
                     // End of Get Round Details
                 })
-            console.log('Historical count %d %d', z1, myHistory.length);
 
             // End of BiblePay History gathering for Pending Payments and share percentages
 
