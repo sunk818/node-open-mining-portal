@@ -134,6 +134,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
 
 
             // R Andrews - History Page - Gather the Share percentages per Pending payment owed
+            myHistory = {};
 
             client.client.multi([
                     ['hgetall', 'biblepay:balances'],
