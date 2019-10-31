@@ -73,7 +73,12 @@ module.exports = function (logger, poolConfig) {
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
         }
         else {
-            redisCommands.push(['hincrby', coin + ':stats', 'invalidShares', 1]);
+
+            var penalty = .90;
+            if (shareData.error == "job not found") {
+                penalty = .25;
+            }
+            redisCommands.push(['hincrbyfloat', coin + ':stats', 'invalidShares', penalty]);
         }
         /* Stores share diff, worker, and unique value with a score that is the timestamp. Unique value ensures it
         doesn't overwrite an existing entry, and timestamp as score lets us query shares from last X minutes to
@@ -81,7 +86,7 @@ module.exports = function (logger, poolConfig) {
         var dateNow = Date.now();
         var hashrateData = [isValidShare ? shareData.difficulty : -shareData.difficulty, shareData.worker, dateNow, shareData.hasabn];
         redisCommands.push(['zadd', coin + ':hashrate', dateNow / 1000 | 0, hashrateData.join(':')]);
-      
+
         if (isValidBlock) {
             redisCommands.push(['rename', coin + ':shares:roundCurrent', coin + ':shares:round' + shareData.height]);
             redisCommands.push(['sadd', coin + ':blocksPending', [shareData.blockHash, shareData.txHash, shareData.height].join(':')]);
@@ -90,7 +95,7 @@ module.exports = function (logger, poolConfig) {
         else if (shareData.blockHash) {
             redisCommands.push(['hincrby', coin + ':stats', 'invalidBlocks', 1]);
         }
-      
+
         connection.multi(redisCommands).exec(function (err, replies) {
             if (err)
                 logger.error(logSystem, logComponent, logSubCat, 'Error with share processor multi ' + JSON.stringify(err));
