@@ -106,8 +106,26 @@ cd nomp
 node init.js <- This restarts the pool
 
 
-***********************************************************************
+*********************   Recommended Settings to decrease Total Invalid Shares below < 10% **************************************************
 
+File: pool_configs.json:
+"ports": "3008" "diff": 7
+"ports": "3032": "diff": 4
+
+File: config.json:
+"defaultPoolConfigs" : "blockRefreshInterval": 90000
+"jobRebroadcastTimeout": 280
+"connectionTimeout": 1800
+"banning": "enabled": true
+"time": 600
+"invalidPercent" 30
+"checkThreshold": 1
+"purgeInterval": 90
+"website" "hashrateWindow": 4200
+"updateInterval": 30
+
+
+********************************************************************************************************************************************
 
 Good Luck, and God bless you all, and remember, Jesus is the Lord and Savior and every man must pass through the narrow gate, as broad is the way and path to destruction that more than half of the world is taking.
 
