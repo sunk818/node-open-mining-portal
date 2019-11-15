@@ -8,18 +8,18 @@
     },
 
     "defaultPoolConfigs": {
-        "blockRefreshInterval": 37000,
-        "jobRebroadcastTimeout": 600,
-        "connectionTimeout": 600,
+        "blockRefreshInterval": 480000,
+        "jobRebroadcastTimeout": 480,
+        "connectionTimeout": 1800,
         "emitInvalidBlockHashes": false,
         "validateWorkerUsername": true,
         "tcpProxyProtocol": false,
         "banning": {
             "enabled": true,
-            "time": 600,
-            "invalidPercent": 50,
-            "checkThreshold": 500,
-            "purgeInterval": 300
+            "time": 60,
+            "invalidPercent": 30,
+            "checkThreshold": 100,
+            "purgeInterval": 55
         },
         "redis": {
             "host": "127.0.0.1",
@@ -31,15 +31,15 @@
         "enabled": true,
         "host": "127.0.0.1",
         "port": 80,
-        "stratumHost": "pool.biblepay.org",
+        "stratumHost": "5.135.183.202",
         "stats": {
-            "updateInterval": 90,
-            "historicalRetention": 43200,
-            "hashrateWindow": 300
+            "updateInterval": 60,
+            "historicalRetention": 259200,
+            "hashrateWindow": 3600
         },
         "adminCenter": {
-            "enabled": true,
-            "password": "adminpassword" 
+            "enabled": false,
+            "password": "PraiseJesusToday"
         }
     },
 
@@ -89,10 +89,10 @@
                     "diff": 0.001,
                     "varDiff": {
                         "minDiff": 0.001,
-                        "maxDiff": 1, 
-                        "targetTime": 15, 
-                        "retargetTime": 60, 
-                        "variancePercent": 30 
+                        "maxDiff": 1,
+                        "targetTime": 15,
+                        "retargetTime": 60,
+                        "variancePercent": 30
                     }
                 }
             }
