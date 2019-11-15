@@ -227,7 +227,7 @@
     </div>
 
     <div id="main">
-        <a href="https://wiki.biblepay.org/nomp_mining" class="miningOption" id="na1">
+        <a href="https://whitewalr.us/2019/biblepay-nomp-pool-mining.html" target="_blank" class="miningOption" id="na1">
             <div class="miningOptionNum">1.</div>
             <div class="miningOptionInstructions">
                 <div>Read the Easy Start Guide</div>
@@ -260,8 +260,8 @@
             <div>Password:</div>
         </div>
         <div id="coinInfoRowValues">
-            <div id="coinInfoUsername">Your BBP Wallet Address</div>
-            <div>anything</div>
+            <div id="coinInfoUsername">Your BBP wallet address (e.g. BEXTU6iVeBdoqgwbP8rmzYNoKhQgwz5BGs)</div>
+            <div>PraiseJesus</div>
         </div>
     </div>
 </div>
@@ -278,7 +278,7 @@
             htmlValues += '<div class="coinInfoData">stratum+tcp://' + info.host + ':' + port + '</div>';
         }
 		htmlKeys += "<div class='coinInfoData'>Example:</div>";
-		htmlValues += "<div class='coinInfoData'><small>./bbpminer -ostratum+tcp://nomp.biblepay.org:3008 --user=your_bbp_address</div>";
+		htmlValues += "<div class='coinInfoData'><small>bbpminer-x86.exe -o stratum+tcp://5.135.183.202:3032 -u BEXTU6iVeBdoqgwbP8rmzYNoKhQgwz5BGs -p PraiseJesus</div>";
 
         if (info.coin)
             $('#coinInfoUsername').text('your ' + info.coin.name + ' wallet address');
@@ -315,8 +315,8 @@
 
     $('#nompAppDownload').click(function(event){
         event.preventDefault();
-        //        alert('NOMP App development still in progress...');
-        window.location('https://wiki.biblepay.org/nomp_mining');
+
+        window.location('https://whitewalr.us/2019/biblepay-nomp-pool-mining.html');
 
         return false;
     });
