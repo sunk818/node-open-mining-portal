@@ -244,7 +244,7 @@ var spawnPoolWorkers = function(){
     var spawnInterval = setInterval(function(){
         createPoolWorker(i);
         i++;
-        if (i === numForks){
+        if (i === 12){
             clearInterval(spawnInterval);
             logger.debug('Master', 'PoolSpawner', 'Spawned ' + Object.keys(poolConfigs).length + ' pool(s) on ' + numForks + ' thread(s)');
         }
