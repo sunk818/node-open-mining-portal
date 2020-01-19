@@ -11,8 +11,8 @@
 
     "paymentProcessing": {
         "enabled": true,
-        "paymentInterval": 15000,
-        "minimumPayment": 100,
+        "paymentInterval": 3600,
+        "minimumPayment": 0.01,
         "daemon": {
             "host": "127.0.0.1",
             "port": my_rpc_port_12000,
@@ -23,16 +23,16 @@
 
     "ports": {
         "3008": {
-            "diff": 1
+            "diff": 8
         },
         "3032": {
-            "diff": 8,
+            "diff": 4,
             "varDiff": {
-                "minDiff": 8,
-                "maxDiff": 512,
-                "targetTime": 15,
-                "retargetTime": 90,
-                "variancePercent": 30
+                "minDiff": 4,
+                "maxDiff": 10,
+                "targetTime": 60,
+                "retargetTime": 6,
+                "variancePercent": 10
             }
         },
         "3256": {
@@ -53,7 +53,7 @@
         "enabled": true,
         "host": "127.0.0.1",
         "port": 12000,
-        "disableTransactions": true
+        "disableTransactions": false
     },
 
     "mposMode": {

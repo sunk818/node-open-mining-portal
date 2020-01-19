@@ -8,8 +8,8 @@
     },
 
     "defaultPoolConfigs": {
-        "blockRefreshInterval": 480000,
-        "jobRebroadcastTimeout": 480,
+        "blockRefreshInterval": 600000,
+        "jobRebroadcastTimeout": 600,
         "connectionTimeout": 1800,
         "emitInvalidBlockHashes": false,
         "validateWorkerUsername": true,
@@ -34,7 +34,7 @@
         "stratumHost": "5.135.183.202",
         "stats": {
             "updateInterval": 60,
-            "historicalRetention": 259200,
+            "historicalRetention": 86400,
             "hashrateWindow": 3600
         },
         "adminCenter": {
