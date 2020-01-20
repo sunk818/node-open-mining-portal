@@ -10,7 +10,7 @@
     "defaultPoolConfigs": {
         "blockRefreshInterval": 600000,
         "jobRebroadcastTimeout": 600,
-        "connectionTimeout": 1800,
+        "connectionTimeout": 600,
         "emitInvalidBlockHashes": false,
         "validateWorkerUsername": true,
         "tcpProxyProtocol": false,
