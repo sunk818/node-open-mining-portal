@@ -35,6 +35,9 @@ rpcuser=your_admin_name
 rpcpassword=your_admin_password
 rpcport=your_port
 
+6.5  Install extra dependencies:
+apt-get install nodejs-dev node-gyp libssl1.0-dev git net-tools python build-essential
+
 7. Install NOMP:
 
 Note: The admin commands below assume you are su'ed as root: 
