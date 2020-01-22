@@ -72,7 +72,9 @@ module.exports = function (logger, poolConfig) {
         if (shareData.error == "job not found") {
             penalty = .25;
         }
-
+		if (shareData.error == "high nonce") {
+			penalty = 2.0;
+		}
         if (isValidShare) {
             redisCommands.push(['hincrbyfloat', coin + ':shares:roundCurrent', shareData.worker, shareData.difficulty]);
             redisCommands.push(['hincrby', coin + ':stats', 'validShares', 1]);
