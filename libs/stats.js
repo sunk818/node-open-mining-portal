@@ -19,7 +19,7 @@ module.exports = function (logger, portalConfig, poolConfigs) {
     var redisStats;
 
     var myHistory = [];
-   
+
 
     this.statHistory = [];
     this.statPoolHistory = [];
@@ -388,6 +388,8 @@ module.exports = function (logger, portalConfig, poolConfigs) {
 
     this.getReadableHashRateString = function (hashrate) {
         var i = -1;
+        var pobh_multiplier = 1.5;
+        hashrate = hashrate * pobh_multiplier;
         var byteUnits = [' H', ' KH', ' MH', ' GH', ' PH'];
         do {
             hashrate = hashrate / 1000;
